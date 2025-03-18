@@ -1,0 +1,27 @@
+name: Docker Nginx Lab
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  docker:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Build Docker image
+      - name: Build Docker image
+        run: docker build -t mynginx:test .
+
+      # Test Docker image
+      - name: Test Docker image
+        run: |
+          docker run -d -p 8080:80 --name test-nginx mynginx:test
+          sleep 5
+          curl http://localhost:8080 | grep "Hello from GitHub Actions"
+          docker stop test-nginx
